@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: deskwise-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: deskwise
+      POSTGRES_PASSWORD: deskwise_dev_password
+      POSTGRES_DB: deskwise
+    ports:
+      - "5432:5432"
+    volumes:
+      - deskwise_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: deskwise-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://deskwise:deskwise_dev_password@postgres:5432/deskwise
+
+volumes:
+  deskwise_pgdata:
